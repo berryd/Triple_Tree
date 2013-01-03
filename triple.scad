@@ -4,7 +4,7 @@ pattern_depth = 3; //mm
 boss_style = 1; //1-2
 half = false;
 
-smooth = 0; //0-360
+smooth = 360; //0-360
 pattern_3_inset_percent = 0.9;
 pattern_5_bridge = 2.5;
 
@@ -405,7 +405,8 @@ module triple_tree() {
                 union() {
                     cylinder(clamp_outer_tang+gap+clamp_bolt_hole_thread_d, clamp_bolt_hole_thread_w/2, 
                                   clamp_bolt_hole_thread_w/2, $fn=smooth);
-                    cylinder(clamp_outer_tang, clamp_bolt_hole_counter_w/2, clamp_bolt_hole_counter_w/2, $fn=smooth);
+                    translate([0,0,-1])
+                    cylinder(clamp_outer_tang+2, clamp_bolt_hole_counter_w/2, clamp_bolt_hole_counter_w/2, $fn=smooth);
                 }
             }
         }
@@ -496,8 +497,5 @@ module triple_tree() {
 }
 
 triple_tree();
-
-
-
 
 //translate([0,0,10]) pattern();  mirror([1,0,0]) translate([0,0,10]) pattern();
