@@ -1,15 +1,19 @@
 style = 1; //1 or 2
-pattern = 5; //0-5...0 for off
-pattern_depth = 3;
+pattern = 2; //0-5...0 for off
+pattern_depth = 3; //mm
+boss_style = 1; //1-2
 half = false;
 
-smooth = 360; //0-360
+smooth = 0; //0-360
 pattern_3_inset_percent = 0.9;
+pattern_5_bridge = 2.5;
 
+//Note:  all units metric
 center_to_center_fork = 214;
 outer_clamp_dia = 60;
 fork_tube_dia = 50;
 c2c_lock_stem = 67;
+stem_to_lock_edge = 60.5;
 lock_cyl = 30;
 lock_od = 40;
 lock_flange_thickness = 13;
@@ -19,12 +23,19 @@ stem_dia = 22.5;
 stem_inner_ring = 20; //default 20
 stem_outer_ring = 25; //default 25
 
-base_tree_thickness = 30;
+base_tree_thickness = 30; //thickness of top half
 fork_extension_length = 30;
 
+//FORK CLAMP BOSS
 boss_extension_offcenter = 42;
 boss_extension_abs = c2c_lock_stem/2;
-boss_extension_beef = 6;  //default 0, 0-18
+boss_extension_beef = 8;  //default 8, 0-18
+clamp_outer_tang = 14;
+
+//GAUGE MOUNT
+gauge_boss_width = 25;
+gauge_boss_center_from_edge = 2.5;
+gauge_boss_x_offset = 51;
 
 gap = 3;
 bevel = 10;
@@ -47,11 +58,32 @@ module prism(l, w, h) {
 }
 
 module front_bevel() {
-    d =(center_to_center_fork/2-(bevel*2))-(lock_od/2+bevel-2);
-    translate([lock_od/2+bevel-2,-(c2c_lock_stem/2+bevel),0]) circle(r=bevel, $fn=smooth);
-    translate([center_to_center_fork/2-(bevel*2)-boss_extension_beef,-(c2c_lock_stem/2+bevel),0]) 
-                   circle(r=bevel, $fn=smooth);
-    translate([lock_od/2+bevel-2,-(c2c_lock_stem/2+bevel*2),0]) square([d-boss_extension_beef,bevel*2]);
+    if(boss_style == 1) {
+        hull() {
+            translate([lock_od/2+bevel-1,-(stem_to_lock_edge/2+bevel),0]) circle(r=bevel, $fn=smooth);
+            translate([center_to_center_fork/2-(bevel*2)-boss_extension_beef,-(stem_to_lock_edge/2+bevel),0]) 
+                           circle(r=bevel, $fn=smooth);
+            translate([lock_od/2,-(stem_to_lock_edge/2+bevel*3),0]) 
+                square([(center_to_center_fork/2)-(lock_od/2+bevel)-boss_extension_beef,bevel*2]);    
+        }
+        difference() {
+            translate([0,-(c2c_lock_stem/2)-lock_od/2-bevel/2,0]) square(lock_od,center=true);
+            translate([0,-(c2c_lock_stem/2),0]) circle(r=lock_od/2, $fn=smooth);
+        }
+    }
+    if(boss_style == 2) {
+        hull() {
+            translate([lock_od/2+bevel-1,-(stem_to_lock_edge/2+bevel),0]) circle(r=bevel, $fn=smooth);
+            translate([center_to_center_fork/2-(bevel*3)-boss_extension_beef,-(stem_to_lock_edge/2+bevel),0]) 
+                           circle(r=bevel, $fn=smooth);
+            translate([lock_od/2+bevel,-(stem_to_lock_edge/2+bevel*3),0]) 
+                square([(center_to_center_fork/2)-(lock_od/2+bevel)-boss_extension_beef-bevel,bevel*2]);    
+        }
+        difference() {
+            translate([0,-(c2c_lock_stem/2)-lock_od/2-bevel/2,0]) square(lock_od,center=true);
+            translate([0,-(c2c_lock_stem/2),0]) circle(r=lock_od/2, $fn=smooth);
+        }
+    }
 }
 
 module basic_shape_half() {
@@ -64,7 +96,8 @@ module basic_shape_half() {
             }
             translate([0,-(c2c_lock_stem/2),0]) circle(r=lock_od/2, $fn=smooth);
             translate([0,(c2c_lock_stem/2),0]) circle(r=stem_outer_ring, $fn=smooth);
-            translate([0,-boss_extension_offcenter]) square([center_to_center_fork/2+14,boss_extension_offcenter]);
+            translate([0,-boss_extension_offcenter]) 
+                           square([center_to_center_fork/2+clamp_outer_tang,boss_extension_offcenter]);
         }
         translate([0,(c2c_lock_stem/2),0]) circle(r=stem_dia/2, $fn=smooth);        
         translate([(center_to_center_fork/2),0,0]) circle(r=fork_tube_dia/2, $fn=smooth);
@@ -150,9 +183,9 @@ module pattern() {
                         difference() {
                             basic_shape_half();
                             front_bevel();
-                            translate([center_to_center_fork/2-(bevel*2)-boss_extension_beef,-(c2c_lock_stem/2+bevel*2),0]) 
+                            translate([center_to_center_fork/2-(bevel*2)-boss_extension_beef,-(stem_to_lock_edge/2+bevel*2),0]) 
                                              square([d-boss_extension_beef,bevel*2]);
-                            translate([bevel*4,-c2c_lock_stem/2+bevel*2-1,5]) {
+                            translate([bevel*4,-stem_to_lock_edge/2+bevel*2-1,5]) {
                                 rotate([0,0,180]) {
                                     translate([0,0,0]) {
                                         difference() {
@@ -183,9 +216,9 @@ module pattern() {
                         difference() {
                             basic_shape_half();
                             front_bevel();
-                            translate([center_to_center_fork/2-(bevel*2)-boss_extension_beef,-(c2c_lock_stem/2+bevel*2),0]) 
+                            translate([center_to_center_fork/2-(bevel*2)-boss_extension_beef,-(stem_to_lock_edge/2+bevel*2),0]) 
                                              square([d-boss_extension_beef,bevel*2]);
-                            translate([bevel*4,-c2c_lock_stem/2+bevel*2-1,5]) {
+                            translate([bevel*4,-stem_to_lock_edge/2+bevel*2-1,5]) {
                                 rotate([0,0,180]) {
                                     translate([0,0,0]) {
                                         difference() {
@@ -218,9 +251,9 @@ module pattern() {
                         difference() {
                             basic_shape_half();
                             front_bevel();
-                            translate([center_to_center_fork/2-(bevel*2)-boss_extension_beef,-(c2c_lock_stem/2+bevel*2),0]) 
+                            translate([center_to_center_fork/2-(bevel*2)-boss_extension_beef,-(stem_to_lock_edge/2+bevel*2),0]) 
                                              square([d-boss_extension_beef,bevel*2]);
-                            translate([bevel*4,-c2c_lock_stem/2+bevel*2-1,5]) {
+                            translate([bevel*4,-stem_to_lock_edge/2+bevel*2-1,5]) {
                                 rotate([0,0,180]) {
                                     translate([0,0,0]) {
                                         difference() {
@@ -240,7 +273,7 @@ module pattern() {
                         translate([0,(c2c_lock_stem/2),0]) circle(r=stem_outer_ring*.95, $fn=smooth);
                         translate([bar_mount_h, bar_mount_v, 0]) circle(r=bar_mount_large_id/2+bevel/2, $fn=smooth);
                     }
-                    translate([-height/4,0,0]) square(height/2, center=true);
+                    translate([-height/4+pattern_5_bridge,0,0]) square(height/2, center=true);
                 }
             }
         }
@@ -284,12 +317,14 @@ module triple_tree() {
         module lock_area_bevel() {
             translate([0,-c2c_lock_stem/2,base_tree_thickness+lock_flange_thickness]) 
                            cylinder(base_tree_thickness-lock_flange_thickness, lock_od/2+1, lock_od/2+1, $fn=smooth);
-            translate([bevel*4-2,-c2c_lock_stem/2+bevel*2-1,fork_extension_length+5+3]) {
+            translate([bevel*4-bevel/2+1,-stem_to_lock_edge/2+bevel*2-.5,fork_extension_length+5+3]) {
                 rotate([0,0,180]) {
                     translate([0,0,5]) {
                         difference() {
                             cube([bevel*2,bevel*3,fork_extension_length+5-lock_flange_thickness]);
                             translate([bevel/4,0,-2.5]) cylinder(fork_extension_length+10, bevel*2, bevel*2, $fn=smooth);
+                            translate([bevel*1.5,-bevel/2-2,0]) 
+                                           cube([bevel*2,bevel*2,fork_extension_length+5-lock_flange_thickness]);
                         }   
                     }
                 }
@@ -309,6 +344,22 @@ module triple_tree() {
             }
             translate([bar_mount_h, bar_mount_v, 0]) bar_mount_hole();
             translate([-bar_mount_h, bar_mount_v, 0]) bar_mount_hole();
+        }
+
+        module gauge_boss() {
+
+
+
+
+
+
+
+
+
+
+
+
+
         }
 
         difference() {
@@ -363,6 +414,10 @@ module triple_tree() {
             translate([0,0,-1]) linear_extrude(height=base_tree_thickness+fork_extension_length+2) {
                 front_bevel();
             }
+
+            //slice it in half to get rid of artifacts when mirroring
+            translate([-height/2,-height/2-height/4,-5])
+                cube([height/2,height+height/2,fork_extension_length+base_tree_thickness+10]);
 
             bar_mount();
             lock_area_bevel();
