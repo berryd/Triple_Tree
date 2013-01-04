@@ -27,8 +27,7 @@ base_tree_thickness = 30; //thickness of top half
 fork_extension_length = 30;
 
 //FORK CLAMP BOSS
-boss_extension_offcenter = 42;
-boss_extension_abs = c2c_lock_stem/2;
+boss_extension_offcenter = 45;
 boss_extension_beef = 8;  //default 8, 0-18
 clamp_outer_tang = 14;
 clamp_bolt_holes = 3;
@@ -116,7 +115,7 @@ module basic_shape_half() {
             }
             translate([0,-(c2c_lock_stem/2),0]) circle(r=lock_od/2, $fn=smooth);
             translate([0,(c2c_lock_stem/2),0]) circle(r=stem_outer_ring, $fn=smooth);
-            translate([0,-boss_extension_offcenter]) 
+            translate([0,-boss_extension_offcenter])
                            square([center_to_center_fork/2+clamp_outer_tang,boss_extension_offcenter]);
         }
         translate([0,(c2c_lock_stem/2),0]) circle(r=stem_dia/2, $fn=smooth);        
@@ -398,7 +397,7 @@ module triple_tree() {
         }
 
         module bolt_holes() {
-            tang_placement = (boss_extension_offcenter-outer_clamp_dia/2)/2+outer_clamp_dia/2;
+            tang_placement = (boss_extension_offcenter-outer_clamp_dia/2)/2+outer_clamp_dia/2-1;
             for ( i = [1 : clamp_bolt_holes] ) {
                 translate([center_to_center_fork/2+clamp_outer_tang,-tang_placement,i*bolt_spacing-bolt_spacing/2])
                 rotate([0,270,0])
